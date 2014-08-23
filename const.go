@@ -10,6 +10,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+    "appengine"
+    "appengine/urlfetch"
 )
 
 const (
@@ -31,8 +33,14 @@ func getResponse(url string, vals *url.Values, s *Session) (*bytes.Buffer, error
 		finalurl = url + "?" + vals.Encode()
 	}
 
+	//GOOGLE APP ENGINE
+	c := appengine.NewContext(r)
+    client := urlfetch.Client(c)
+	
 	// Create a request and add the proper headers.
-	req, err := http.NewRequest(action, finalurl, nil)
+	// req, err := http.NewRequest(action, finalurl, nil)
+	// GOOGLE APP ENGINE 
+	req, err := client.NewRequest(action, finalurl, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +50,10 @@ func getResponse(url string, vals *url.Values, s *Session) (*bytes.Buffer, error
 	req.Header.Set("User-Agent", DefaultUserAgent)
 
 	// Handle the request
-	resp, err := http.DefaultClient.Do(req)
+	// resp, err := http.DefaultClient.Do(req)
+	// GOOGLE APP ENGINE 
+    resp, err := client.Do(req)
+	
 	if err != nil {
 		return nil, err
 	}
